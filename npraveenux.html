@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Praveen Kumar Nalluru — UX Designer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset ─────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    /* ── Theme Tokens ───────────────────────────────────────────── */
+    :root {
+      --bg:      #F8F6F3;
+      --bg2:     #EEEAE5;
+      --bg-card: #FFFFFF;
+      --fg:      #1A1714;
+      --fg2:     #72695F;
+      --fg3:     #A39B93;
+      --a1:      #E84A1F;
+      --a2:      #009B82;
+      --border:  rgba(26,23,20,0.09);
+      --shadow:  0 4px 28px rgba(0,0,0,0.07);
+      --t:       0.5s cubic-bezier(0.16,1,0.3,1);
+    }
+    [data-theme="dark"] {
+      --bg:      #0D0C0B;
+      --bg2:     #141311;
+      --bg-card: #1A1816;
+      --fg:      #F0EDE8;
+      --fg2:     #968E86;
+      --fg3:     #6A6360;
+      --a1:      #FF6B45;
+      --a2:      #00C9A8;
+      --border:  rgba(240,237,232,0.08);
+      --shadow:  0 4px 32px rgba(0,0,0,0.5);
+    }
+
+    /* ── Base ───────────────────────────────────────────────────── */
+    body {
+      font-family: 'Manrope', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      transition: background var(--t), color var(--t);
+      overflow-x: hidden;
+    }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; }
+
+    /* ── Custom Cursor (desktop) ────────────────────────────────── */
+    body { cursor: none; }
+    .c-dot, .c-ring {
+      position: fixed; top: 0; left: 0; pointer-events: none;
+      border-radius: 50%; transform: translate(-50%,-50%); z-index: 9999;
+      transition: opacity .3s;
+    }
+    .c-dot  { width:6px; height:6px; background:var(--a1); }
+    .c-ring {
+      width:36px; height:36px; border:1.5px solid var(--a1); opacity:.45;
+      transition: width .2s, height .2s, opacity .3s;
+    }
+    .c-ring.hov { width:56px; height:56px; opacity:.25; }
+    @media(max-width:768px){
+      body{cursor:auto;}
+      .c-dot,.c-ring{display:none;}
+    }
+
+    /* ── Nav ────────────────────────────────────────────────────── */
+    nav {
+      position: fixed; top:0; left:0; right:0; z-index:100;
+      height:66px; padding:0 5%;
+      display:flex; align-items:center; justify-content:space-between;
+      transition: background var(--t), box-shadow var(--t);
+    }
+    nav.scrolled {
+      background: color-mix(in srgb, var(--bg) 85%, transparent);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 1px 0 var(--border);
+    }
+
+    /* Nav Logo */
+    .nav-logo {
+      font-family:'Syne',sans-serif; font-size:1.35rem; font-weight:800;
+      letter-spacing:-.04em; display:flex; align-items:baseline; gap:0;
+      line-height:1;
+    }
+    .nav-logo .nc { color:var(--fg); display:inline-block; }
+    .nav-logo .ne1{ color:var(--a1); display:inline-block; letter-spacing:-.06em; }
+    .nav-logo .ne2{ color:var(--a2); display:inline-block; transform:scaleX(-1); letter-spacing:0; }
+
+    .nav-links { display:flex; gap:2.25rem; list-style:none; }
+    .nav-links a {
+      font-size:.83rem; font-weight:600; letter-spacing:.04em;
+      text-transform:uppercase; color:var(--fg2);
+      transition:color .2s; position:relative; padding-bottom:3px;
+    }
+    .nav-links a::after {
+      content:''; position:absolute; bottom:0; left:0; right:0;
+      height:1.5px; background:linear-gradient(90deg,var(--a1),var(--a2));
+      transform:scaleX(0); transition:transform .3s cubic-bezier(.16,1,.3,1);
+      transform-origin:left;
+    }
+    .nav-links a:hover { color:var(--fg); }
+    .nav-links a:hover::after { transform:scaleX(1); }
+
+    .nav-right { display:flex; align-items:center; gap:1rem; }
+
+    /* Theme toggle */
+    .theme-btn {
+      width:44px; height:25px; border-radius:13px;
+      background:var(--bg2); border:1px solid var(--border);
+      cursor:pointer; position:relative; transition:background var(--t);
+      flex-shrink:0;
+    }
+    .theme-btn::before {
+      content:''; position:absolute; top:3px; left:3px;
+      width:17px; height:17px; border-radius:50%; background:var(--a1);
+      transition:transform var(--t);
+    }
+    [data-theme="dark"] .theme-btn::before { transform:translateX(19px); }
+
+    /* Hamburger */
+    .hamburger {
+      display:none; flex-direction:column; gap:5px;
+      background:none; border:none; cursor:pointer; padding:4px;
+    }
+    .hamburger span {
+      display:block; width:24px; height:1.5px;
+      background:var(--fg); border-radius:1px;
+      transition:transform .3s, opacity .3s;
+    }
+    .hamburger.open span:nth-child(1){ transform:translateY(6.5px) rotate(45deg); }
+    .hamburger.open span:nth-child(2){ opacity:0; }
+    .hamburger.open span:nth-child(3){ transform:translateY(-6.5px) rotate(-45deg); }
+
+    @media(max-width:768px){
+      .nav-links {
+        position:fixed; top:66px; left:0; right:0;
+        background:var(--bg); flex-direction:column; align-items:center;
+        gap:0; padding:1rem 0;
+        border-bottom:1px solid var(--border);
+        transform:translateY(-110%); opacity:0; pointer-events:none;
+        transition:transform .4s cubic-bezier(.16,1,.3,1), opacity .4s;
+      }
+      .nav-links.open { transform:translateY(0); opacity:1; pointer-events:auto; }
+      .nav-links li { width:100%; text-align:center; }
+      .nav-links a { display:block; padding:.875rem 0; }
+      .hamburger { display:flex; }
+    }
+
+    /* ── Hero ───────────────────────────────────────────────────── */
+    #hero {
+      min-height:100vh; position:relative; overflow:hidden;
+      display:flex; align-items:center; justify-content:center;
+      padding:90px 5% 60px;
+    }
+
+    /* Ambient blobs */
+    .hero-bg { position:absolute; inset:0; z-index:0; }
+    .blob {
+      position:absolute; border-radius:50%;
+      filter:blur(90px); opacity:.13;
+    }
+    [data-theme="dark"] .blob { opacity:.2; }
+    .blob-1 { width:700px;height:700px;background:var(--a1);top:-250px;left:-150px; animation:bm1 14s ease-in-out infinite alternate; }
+    .blob-2 { width:600px;height:600px;background:var(--a2);bottom:-150px;right:-100px; animation:bm2 16s ease-in-out infinite alternate; }
+    .blob-3 { width:450px;height:450px;background:var(--a2);top:40%;left:50%;transform:translate(-50%,-50%); animation:bm3 11s ease-in-out infinite alternate; }
+    @keyframes bm1{0%{transform:translate(0,0) scale(1)}100%{transform:translate(80px,60px) scale(1.15)}}
+    @keyframes bm2{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-60px,-80px) scale(1.2)}}
+    @keyframes bm3{0%{transform:translate(-50%,-50%) scale(.85)}100%{transform:translate(-45%,-55%) scale(1.1)}}
+
+    /* Dot grid */
+    .dot-grid {
+      position:absolute; inset:0;
+      background-image:radial-gradient(circle, var(--fg) 1px, transparent 1px);
+      background-size:36px 36px; opacity:.035;
+    }
+
+    .hero-content { position:relative; z-index:1; text-align:center; max-width:1000px; width:100%; }
+
+    /* ── PRAVEEN Logo ─────────────────────────────────────────── */
+    .hero-logo {
+      font-family:'Syne',sans-serif;
+      font-size:clamp(3.8rem,14vw,10.5rem);
+      font-weight:800; letter-spacing:-.03em; line-height:1;
+      margin-bottom:1.75rem;
+      display:flex; justify-content:center; align-items:baseline;
+    }
+    .lc {
+      display:inline-block;
+      color:var(--fg);
+      animation:lcIn .7s cubic-bezier(.16,1,.3,1) both;
+    }
+    .lc:nth-child(1){animation-delay:.08s}
+    .lc:nth-child(2){animation-delay:.14s}
+    .lc:nth-child(3){animation-delay:.20s}
+    .lc:nth-child(4){animation-delay:.26s}
+    .lc:nth-child(5){animation-delay:.32s}
+    .lc:nth-child(6){animation-delay:.38s}
+    .lc:nth-child(7){animation-delay:.44s}
+    @keyframes lcIn{
+      from{opacity:0;transform:translateY(50px) skewX(-10deg);}
+      to{opacity:1;transform:translateY(0) skewX(0deg);}
+    }
+    /* EE treatment */
+    .lc-e1 {
+      color:var(--a1) !important;
+      letter-spacing:-.07em;
+    }
+    .lc-e2 {
+      color:var(--a2) !important;
+      transform:scaleX(-1);
+      letter-spacing:0;
+    }
+    /* thin connector dot between EE */
+    .ee-dot {
+      display:inline-block;
+      width:.12em; height:.12em;
+      background:var(--fg3); border-radius:50%;
+      margin-bottom:.35em;
+      align-self:flex-end;
+      animation:lcIn .7s .35s cubic-bezier(.16,1,.3,1) both;
+    }
+
+    .hero-role {
+      font-size:clamp(.875rem,2.5vw,1.15rem);
+      font-weight:600; letter-spacing:.1em; text-transform:uppercase;
+      color:var(--fg2); margin-bottom:.875rem;
+      animation:fuAnim .8s .55s cubic-bezier(.16,1,.3,1) both;
+    }
+    .hero-sub {
+      font-size:clamp(.875rem,2vw,1.05rem); color:var(--fg3);
+      max-width:480px; margin:0 auto 2.75rem; line-height:1.7;
+      animation:fuAnim .8s .65s cubic-bezier(.16,1,.3,1) both;
+    }
+
+    .hero-stats {
+      display:flex; justify-content:center; gap:clamp(1.5rem,4vw,4rem);
+      margin-bottom:3rem;
+      animation:fuAnim .8s .75s cubic-bezier(.16,1,.3,1) both;
+    }
+    .hstat { text-align:center; }
+    .hstat-num {
+      font-family:'Syne',sans-serif;
+      font-size:clamp(1.75rem,4vw,2.75rem); font-weight:800; line-height:1;
+      color:var(--fg);
+    }
+    .hstat-num em { color:var(--a1); font-style:normal; }
+    .hstat-label {
+      font-size:.7rem; letter-spacing:.1em; text-transform:uppercase;
+      color:var(--fg3); margin-top:.3rem; font-weight:600;
+    }
+
+    .hero-cta {
+      display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;
+      animation:fuAnim .8s .85s cubic-bezier(.16,1,.3,1) both;
+    }
+    .btn-p, .btn-s {
+      padding:.875rem 2rem; border-radius:6px;
+      font-family:'Manrope',sans-serif; font-size:.875rem; font-weight:600;
+      letter-spacing:.04em; cursor:pointer;
+      transition:transform .3s, box-shadow .3s;
+    }
+    .btn-p {
+      background:var(--a1); color:#fff; border:none;
+    }
+    .btn-p:hover { transform:translateY(-3px); box-shadow:0 10px 28px color-mix(in srgb,var(--a1) 40%,transparent); }
+    .btn-s {
+      background:transparent; color:var(--fg); border:1.5px solid var(--border);
+    }
+    .btn-s:hover { transform:translateY(-3px); border-color:var(--fg2); }
+
+    .scroll-cue {
+      position:absolute; bottom:2rem; left:50%; transform:translateX(-50%);
+      display:flex; flex-direction:column; align-items:center; gap:.5rem;
+      animation:fuAnim .8s 1s cubic-bezier(.16,1,.3,1) both;
+    }
+    .scroll-cue span { font-size:.65rem; letter-spacing:.14em; text-transform:uppercase; color:var(--fg3); }
+    .scroll-line { width:1px; height:46px; background:linear-gradient(to bottom,var(--fg3),transparent); animation:sp 2s ease-in-out infinite; }
+    @keyframes sp{0%,100%{opacity:.3}50%{opacity:1}}
+    @keyframes fuAnim{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+
+    /* ── Sections layout ────────────────────────────────────────── */
+    .section { padding:6rem 5%; }
+    .section-inner { max-width:1200px; margin:0 auto; }
+    .section-label {
+      font-size:.72rem; letter-spacing:.15em; text-transform:uppercase;
+      color:var(--a1); font-weight:700; margin-bottom:.6rem;
+    }
+    .section-title {
+      font-family:'Syne',sans-serif;
+      font-size:clamp(2rem,5vw,3rem); font-weight:800;
+      letter-spacing:-.025em; line-height:1.1;
+      color:var(--fg); margin-bottom:.875rem;
+    }
+    .section-bar {
+      width:48px; height:3px;
+      background:linear-gradient(90deg,var(--a1),var(--a2));
+      border-radius:2px; margin-bottom:3rem;
+    }
+
+    /* Scroll reveal */
+    .reveal {
+      opacity:0; transform:translateY(32px);
+      transition:opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1);
+    }
+    .reveal.vis { opacity:1; transform:translateY(0); }
+    .rd1{transition-delay:.1s} .rd2{transition-delay:.2s}
+    .rd3{transition-delay:.3s} .rd4{transition-delay:.4s}
+    .rd5{transition-delay:.5s} .rd6{transition-delay:.6s}
+
+    /* ── About ──────────────────────────────────────────────────── */
+    #about { background:var(--bg); }
+    .about-grid {
+      display:grid; grid-template-columns:1fr 1fr; gap:4.5rem; align-items:start;
+    }
+    @media(max-width:900px){ .about-grid{grid-template-columns:1fr;gap:2.5rem} }
+
+    .cua-badge {
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.4rem 1rem; border:1px solid var(--a2); border-radius:100px;
+      font-size:.78rem; font-weight:700; color:var(--a2);
+      background:color-mix(in srgb,var(--a2) 8%,transparent);
+      margin-bottom:1.5rem;
+    }
+    .cua-badge-dot {
+      width:8px;height:8px;border-radius:50%;background:var(--a2);flex-shrink:0;
+      animation:pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+    .about-text p {
+      color:var(--fg2); line-height:1.85; font-size:1.02rem; margin-bottom:1.25rem;
+    }
+    .about-text p strong { color:var(--fg); }
+
+    .about-socials { display:flex; gap:.75rem; flex-wrap:wrap; margin-top:1.5rem; }
+    .soc-link {
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.6rem 1.2rem; border:1.5px solid var(--border);
+      border-radius:6px; font-size:.85rem; font-weight:600; color:var(--fg2);
+      background:var(--bg-card); transition:all .3s; box-shadow:var(--shadow);
+    }
+    .soc-link:hover { color:var(--fg); border-color:var(--fg2); transform:translateY(-2px); }
+    .soc-link svg { width:16px;height:16px; }
+
+    .about-cards { display:flex; flex-direction:column; gap:1.25rem; }
+    .acard {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:12px; padding:1.5rem; box-shadow:var(--shadow);
+    }
+    .acard h4 {
+      font-family:'Syne',sans-serif; font-size:.78rem; font-weight:700;
+      letter-spacing:.1em; text-transform:uppercase; color:var(--fg3);
+      margin-bottom:1rem;
+    }
+    .cert-list { list-style:none; display:flex;flex-direction:column;gap:.5rem; }
+    .cert-list li {
+      font-size:.855rem; color:var(--fg2); line-height:1.45;
+      display:flex; align-items:flex-start; gap:.5rem;
+    }
+    .cert-list li::before { content:'→'; color:var(--a1);font-size:.75rem;margin-top:.1rem;flex-shrink:0; }
+    .tags { display:flex;flex-wrap:wrap;gap:.5rem; }
+    .tag {
+      padding:.3rem .8rem; background:var(--bg2); border-radius:100px;
+      font-size:.78rem; color:var(--fg2); font-weight:500;
+    }
+
+    /* ── Skills ─────────────────────────────────────────────────── */
+    #skills { background:var(--bg2); }
+    .skills-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:1.25rem;
+    }
+    .sk-card {
+      background:var(--bg-card); border:1px solid var(--border); border-radius:12px;
+      padding:1.5rem; box-shadow:var(--shadow);
+      transition:transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s;
+    }
+    .sk-card:hover { transform:translateY(-6px); box-shadow:0 18px 48px rgba(0,0,0,.12); }
+    .sk-icon { font-size:2rem; margin-bottom:1rem; display:block; }
+    .sk-card h3 {
+      font-family:'Syne',sans-serif; font-size:.95rem; font-weight:700;
+      color:var(--fg); margin-bottom:.625rem;
+    }
+    .sk-card p { font-size:.84rem; color:var(--fg2); line-height:1.65; }
+    .sk-tools { display:flex;flex-wrap:wrap;gap:.375rem;margin-top:.875rem; }
+    .sk-tool {
+      padding:.2rem .625rem; border:1px solid var(--border);
+      border-radius:4px; font-size:.72rem; color:var(--fg3); font-weight:600;
+    }
+
+    /* ── Experience ─────────────────────────────────────────────── */
+    #experience { background:var(--bg); }
+    .timeline { position:relative; padding-left:2rem; }
+    .timeline::before {
+      content:''; position:absolute; left:0;top:8px;bottom:0; width:1px;
+      background:linear-gradient(to bottom,var(--a1),var(--a2),transparent);
+    }
+    .tl-item { position:relative; padding-bottom:3.5rem; }
+    .tl-item::last-child { padding-bottom:0; }
+    .tl-dot {
+      position:absolute; left:-2.32rem; top:6px;
+      width:12px;height:12px; border-radius:50%;
+      border:2px solid var(--bg); background:var(--a1);
+    }
+    .tl-item:nth-child(2) .tl-dot { background:var(--a2); }
+    .tl-item:nth-child(3) .tl-dot { background:var(--fg3); }
+
+    .tl-head {
+      display:flex; align-items:flex-start; justify-content:space-between;
+      flex-wrap:wrap; gap:.75rem; margin-bottom:.35rem;
+    }
+    .tl-role {
+      font-family:'Syne',sans-serif; font-size:1.2rem;
+      font-weight:700; color:var(--fg); line-height:1.2;
+    }
+    .tl-period {
+      font-size:.75rem; color:var(--fg3); font-weight:600;
+      padding:.25rem .75rem; background:var(--bg2); border-radius:100px;
+      white-space:nowrap;
+    }
+    .tl-company { font-size:.9rem; color:var(--a1); font-weight:600; margin-bottom:1rem; }
+    .tl-item:nth-child(2) .tl-company { color:var(--a2); }
+    .tl-list { list-style:none; display:flex;flex-direction:column;gap:.5rem; }
+    .tl-list li {
+      font-size:.89rem; color:var(--fg2); line-height:1.65;
+      padding-left:1.25rem; position:relative;
+    }
+    .tl-list li::before { content:'·'; position:absolute;left:0;color:var(--a2);font-size:1.2rem;line-height:1.1; }
+
+    /* ── Featured Projects ──────────────────────────────────────── */
+    #featured { background:var(--bg2); }
+    .fp-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:1.5rem;
+    }
+    .fp-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-left:3px solid var(--a1);
+      border-radius:0 12px 12px 0; padding:1.5rem;
+      box-shadow:var(--shadow);
+      transition:transform .3s, box-shadow .3s;
+    }
+    .fp-card:nth-child(2n){ border-left-color:var(--a2); }
+    .fp-card:nth-child(3n){ border-left-color:color-mix(in srgb,var(--a1) 50%,var(--a2) 50%); }
+    .fp-card:hover { transform:translateY(-4px); box-shadow:0 14px 42px rgba(0,0,0,.1); }
+    .fp-client {
+      font-size:.68rem; letter-spacing:.12em; text-transform:uppercase;
+      color:var(--a1); font-weight:700; margin-bottom:.4rem;
+    }
+    .fp-card:nth-child(2n) .fp-client { color:var(--a2); }
+    .fp-title {
+      font-family:'Syne',sans-serif; font-size:1rem; font-weight:700;
+      color:var(--fg); margin-bottom:.75rem; line-height:1.3;
+    }
+    .fp-desc { font-size:.855rem; color:var(--fg2); line-height:1.65; }
+
+    /* ── Behance Portfolio ──────────────────────────────────────── */
+    #portfolio { background:var(--bg); }
+    .pf-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1.5rem;
+    }
+    @media(max-width:480px){ .pf-grid{grid-template-columns:1fr;} }
+    .pf-card {
+      background:var(--bg-card); border:1px solid var(--border); border-radius:12px;
+      overflow:hidden; box-shadow:var(--shadow); display:block; color:inherit;
+      transition:transform .4s cubic-bezier(.16,1,.3,1), box-shadow .4s;
+    }
+    .pf-card:hover { transform:translateY(-6px); box-shadow:0 22px 60px rgba(0,0,0,.15); }
+    .pf-img {
+      width:100%; height:190px; overflow:hidden;
+      background:var(--bg2); position:relative;
+    }
+    .pf-img img { width:100%;height:100%;object-fit:cover; transition:transform .6s cubic-bezier(.16,1,.3,1); }
+    .pf-card:hover .pf-img img { transform:scale(1.07); }
+    .pf-overlay {
+      position:absolute;inset:0;
+      background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.55));
+      opacity:0; transition:opacity .4s;
+      display:flex;align-items:flex-end;padding:.875rem;
+    }
+    .pf-card:hover .pf-overlay { opacity:1; }
+    .pf-overlay span { color:#fff;font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase; }
+    .pf-info { padding:1.1rem 1.25rem; }
+    .pf-tag {
+      display:inline-block; padding:.175rem .6rem;
+      background:var(--bg2); border-radius:100px;
+      font-size:.67rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+      color:var(--fg3); margin-bottom:.5rem;
+    }
+    .pf-title {
+      font-family:'Syne',sans-serif; font-size:.97rem; font-weight:700;
+      color:var(--fg); line-height:1.3;
+    }
+    .pf-footer { text-align:center; margin-top:2.5rem; }
+
+    /* ── Contact ────────────────────────────────────────────────── */
+    #contact { background:var(--bg2); }
+    .contact-wrap { max-width:640px; margin:0 auto; text-align:center; }
+    .contact-sub { color:var(--fg2); font-size:1.05rem; line-height:1.75; margin-bottom:2rem; }
+    .contact-email {
+      display:inline-flex; align-items:center; gap:.5rem;
+      font-family:'Syne',sans-serif; font-size:clamp(1.1rem,3vw,1.5rem); font-weight:700;
+      color:var(--fg); border-bottom:2px solid var(--a1); padding-bottom:2px;
+      transition:color .2s; margin-bottom:2.5rem;
+    }
+    .contact-email:hover { color:var(--a1); }
+    .contact-links {
+      display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;
+    }
+    .c-link {
+      display:inline-flex;align-items:center;gap:.625rem;
+      padding:.875rem 1.5rem; background:var(--bg-card); border:1px solid var(--border);
+      border-radius:10px; font-size:.875rem; font-weight:600; color:var(--fg2);
+      box-shadow:var(--shadow); transition:all .3s;
+    }
+    .c-link:hover { color:var(--fg); border-color:var(--fg2); transform:translateY(-3px); box-shadow:0 12px 32px rgba(0,0,0,.1); }
+    .c-link svg { width:18px;height:18px;flex-shrink:0; }
+
+    /* ── Footer ─────────────────────────────────────────────────── */
+    footer {
+      padding:2rem 5%; background:var(--bg);
+      border-top:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;
+      flex-wrap:wrap; gap:1rem;
+    }
+    footer p { font-size:.78rem; color:var(--fg3); }
+    .foot-logo {
+      font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;letter-spacing:-.03em;
+      display:flex;align-items:baseline;
+    }
+    .foot-logo .fc { color:var(--fg); display:inline-block; }
+    .foot-logo .fe1 { color:var(--a1); display:inline-block; letter-spacing:-.05em; }
+    .foot-logo .fe2 { color:var(--a2); display:inline-block; transform:scaleX(-1); }
+    .foot-theme-label { font-size:.72rem;color:var(--fg3);letter-spacing:.08em; }
+
+    /* ── Responsive tweaks ──────────────────────────────────────── */
+    @media(max-width:640px){
+      .section{padding:4rem 5%;}
+      .hero-stats{gap:1.5rem;}
+      .timeline{padding-left:1.5rem;}
+      .hero-logo{gap:0;}
+    }
+    @media(max-width:400px){
+      .hero-cta{flex-direction:column;align-items:center;}
+      .btn-p,.btn-s{width:100%;text-align:center;}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom cursor -->
+  <div class="c-dot" id="cDot"></div>
+  <div class="c-ring" id="cRing"></div>
+
+  <!-- ── NAV ─────────────────────────────────────────────────── -->
+  <nav id="mainNav">
+    <a href="#hero" class="nav-logo" aria-label="Praveen Kumar Nalluru">
+      <span class="nc">PRAV</span><span class="ne1">E</span><span class="ne2">E</span><span class="nc">N</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#about">About</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#featured">Projects</a></li>
+      <li><a href="#portfolio">Portfolio</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="theme-btn" id="themeBtn" aria-label="Toggle theme" title="Toggle dark/light mode"></button>
+      <button class="hamburger" id="menuBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── HERO ────────────────────────────────────────────────── -->
+  <section id="hero">
+    <div class="hero-bg">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+      <div class="dot-grid"></div>
+    </div>
+    <div class="hero-content">
+      <!-- PRAVEEN logo with EE treatment -->
+      <div class="hero-logo" aria-label="Praveen">
+        <span class="lc">P</span>
+        <span class="lc">R</span>
+        <span class="lc">A</span>
+        <span class="lc">V</span>
+        <span class="lc lc-e1">E</span>
+        <span class="ee-dot"></span>
+        <span class="lc lc-e2">E</span>
+        <span class="lc">N</span>
+      </div>
+      <p class="hero-role">Senior UX Designer · Product Experience Specialist</p>
+      <p class="hero-sub">13 years of crafting human-centred digital products across B2B, B2C &amp; enterprise platforms.</p>
+
+      <div class="hero-stats">
+        <div class="hstat">
+          <div class="hstat-num"><em>13</em>+</div>
+          <div class="hstat-label">Years of<br>Experience</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-num"><em>6</em></div>
+          <div class="hstat-label">Industry<br>Domains</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-num"><em>CUA</em></div>
+          <div class="hstat-label">Certified<br>Analyst™</div>
+        </div>
+      </div>
+
+      <div class="hero-cta">
+        <a href="#portfolio" class="btn-p">View Portfolio</a>
+        <a href="#contact"   class="btn-s">Get in Touch</a>
+      </div>
+    </div>
+    <div class="scroll-cue">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ── ABOUT ───────────────────────────────────────────────── -->
+  <section class="section" id="about">
+    <div class="section-inner">
+      <div class="about-grid">
+        <div class="reveal">
+          <p class="section-label">About Me</p>
+          <h2 class="section-title">Designing with Purpose &amp; Precision</h2>
+          <div class="section-bar"></div>
+          <div class="cua-badge">
+            <span class="cua-badge-dot"></span>
+            Certified Usability Analyst (CUA)™ — Human Factors International
+          </div>
+          <div class="about-text">
+            <p>I'm a <strong>Senior UX Designer based in Hyderabad, India</strong> with over 13 years of experience delivering user-centred digital products across B2B, B2C, and B2B2C domains.</p>
+            <p>Currently <strong>Product Experience Specialist at GlobalLogic</strong>, I lead end-to-end UX initiatives — from user research and heuristic evaluations to high-fidelity prototyping and design handoff. My work spans <strong>banking, energy, healthcare, automotive, and aviation</strong> for global enterprise clients.</p>
+            <p>I hold an <strong>MBA in Data Science</strong> and specialise in Agentic AI integration, design systems, responsive web design, and cognitive load optimisation.</p>
+          </div>
+          <div class="about-socials">
+            <a href="https://www.linkedin.com/in/nallurupraveen/" target="_blank" rel="noopener" class="soc-link">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+              LinkedIn
+            </a>
+            <a href="https://www.behance.net/npraveen" target="_blank" rel="noopener" class="soc-link">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 7h-7V5h7v2zm1.726 10c-.442 1.297-2.029 3-5.101 3-3.074 0-5.564-1.729-5.564-5.675 0-3.91 2.325-5.92 5.466-5.92 3.082 0 4.964 1.782 5.375 4.426.078.506.109 1.188.095 2.14H15.97c.13 3.211 3.483 3.226 4.472 2.01l1.284.02zM15.998 13h4.487c-.057-1.443-.62-2.544-2.198-2.544-1.512 0-2.135 1.05-2.289 2.544zM8 11.986c1.816-.169 2.38-1.177 2.38-2.189 0-2.644-2.028-3.798-4.344-3.798H0v12h6.857c2.552 0 4.616-1.31 4.616-4.104 0-1.421-.698-2.558-3.473-1.909zM3 8.998h2.696c.806 0 1.575.357 1.575 1.37 0 .97-.68 1.424-1.589 1.424H3V8.998zm3.663 6.009H3v-2.66h3.663c1.116 0 1.902.491 1.902 1.344 0 .816-.754 1.316-1.902 1.316z"/></svg>
+              Behance
+            </a>
+            <a href="mailto:npraveen.ux@gmail.com" class="soc-link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
+              Email
+            </a>
+          </div>
+        </div>
+
+        <div class="about-cards">
+          <div class="acard reveal rd1">
+            <h4>Certifications</h4>
+            <ul class="cert-list">
+              <li>Certified Usability Analyst (CUA)™ — Human Factors International</li>
+              <li>Agile Foundations — Project Management Institute (PMI)</li>
+              <li>Customer Experience: Journey Mapping — NASBA</li>
+              <li>Figma for UX Design</li>
+              <li>Using AI Tools for UX Design</li>
+              <li>UX Research: Journey Mapping</li>
+            </ul>
+          </div>
+          <div class="acard reveal rd2">
+            <h4>Industry Experience</h4>
+            <div class="tags">
+              <span class="tag">Banking &amp; FinTech</span>
+              <span class="tag">Energy &amp; Utilities</span>
+              <span class="tag">Healthcare</span>
+              <span class="tag">Automotive</span>
+              <span class="tag">Aviation</span>
+              <span class="tag">Retail</span>
+            </div>
+          </div>
+          <div class="acard reveal rd3">
+            <h4>Education</h4>
+            <ul class="cert-list">
+              <li>MBA in Data Science — KL University (2023)</li>
+              <li>Bachelor of Commerce — Acharya Nagarjuna University</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SKILLS ──────────────────────────────────────────────── -->
+  <section class="section" id="skills">
+    <div class="section-inner">
+      <p class="section-label reveal">Core Competencies</p>
+      <h2 class="section-title reveal">What I Bring to the Table</h2>
+      <div class="section-bar reveal"></div>
+      <div class="skills-grid">
+        <div class="sk-card reveal rd1">
+          <span class="sk-icon">🎯</span>
+          <h3>UX Strategy &amp; Research</h3>
+          <p>End-to-end UX planning, heuristic evaluations, stakeholder interviews, persona development, and journey mapping.</p>
+          <div class="sk-tools">
+            <span class="sk-tool">User Research</span>
+            <span class="sk-tool">Usability Testing</span>
+            <span class="sk-tool">A/B Testing</span>
+          </div>
+        </div>
+        <div class="sk-card reveal rd2">
+          <span class="sk-icon">🖥️</span>
+          <h3>UI &amp; Interaction Design</h3>
+          <p>Visual design, interaction design, responsive web, and cross-platform consistency with WCAG accessibility.</p>
+          <div class="sk-tools">
+            <span class="sk-tool">Figma</span>
+            <span class="sk-tool">Adobe XD</span>
+            <span class="sk-tool">Sketch</span>
+            <span class="sk-tool">Axure RP</span>
+          </div>
+        </div>
+        <div class="sk-card reveal rd3">
+          <span class="sk-icon">🧩</span>
+          <h3>Design Systems</h3>
+          <p>Building and maintaining style guides, pattern libraries, and component-level documentation for dev handoff.</p>
+          <div class="sk-tools">
+            <span class="sk-tool">Style Guides</span>
+            <span class="sk-tool">Pattern Libraries</span>
+            <span class="sk-tool">Motiff</span>
+          </div>
+        </div>
+        <div class="sk-card reveal rd4">
+          <span class="sk-icon">🤖</span>
+          <h3>Agentic AI Integration</h3>
+          <p>Designing AI-driven user flows, autonomous agent UX, explainability frameworks, and adaptive interfaces.</p>
+          <div class="sk-tools">
+            <span class="sk-tool">AI UX</span>
+            <span class="sk-tool">Agentic Flows</span>
+            <span class="sk-tool">Cognitive Load</span>
+          </div>
+        </div>
+        <div class="sk-card reveal rd5">
+          <span class="sk-icon">📱</span>
+          <h3>Responsive Web Design</h3>
+          <p>Mobile-first, cross-device design ensuring pixel-perfect experiences across all screen sizes and resolutions.</p>
+          <div class="sk-tools">
+            <span class="sk-tool">RWD</span>
+            <span class="sk-tool">Mobile-first</span>
+            <span class="sk-tool">Accessibility</span>
+          </div>
+        </div>
+        <div class="sk-card reveal rd6">
+          <span class="sk-icon">⚙️</span>
+          <h3>Agile &amp; Design Thinking</h3>
+          <p>Collaborative workshops, sprint-based design delivery, iterative prototyping aligned with product and engineering.</p>
+          <div class="sk-tools">
+            <span class="sk-tool">Agile</span>
+            <span class="sk-tool">Lean UX</span>
+            <span class="sk-tool">Design Thinking</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── EXPERIENCE ──────────────────────────────────────────── -->
+  <section class="section" id="experience">
+    <div class="section-inner">
+      <p class="section-label reveal">Career Journey</p>
+      <h2 class="section-title reveal">13 Years of Impact</h2>
+      <div class="section-bar reveal"></div>
+      <div class="timeline">
+
+        <div class="tl-item reveal">
+          <div class="tl-dot"></div>
+          <div class="tl-head">
+            <span class="tl-role">Product Experience Specialist,<br>Usability &amp; Design</span>
+            <span class="tl-period">Sep 2025 — Present</span>
+          </div>
+          <p class="tl-company">GlobalLogic India Private Ltd</p>
+          <ul class="tl-list">
+            <li>Led end-to-end UX initiatives ensuring alignment with product direction, business goals, and user needs.</li>
+            <li>Partnered with product management and engineering to define and deliver innovative, user-centric solutions.</li>
+            <li>Created wireframes, storyboards, user flows, and visual designs from concept to engineering handoff.</li>
+            <li>Established design guidelines and best practices; presented solutions to senior stakeholders.</li>
+          </ul>
+        </div>
+
+        <div class="tl-item reveal rd1">
+          <div class="tl-dot"></div>
+          <div class="tl-head">
+            <span class="tl-role">Design Lead &amp; Assistant Consultant</span>
+            <span class="tl-period">Jul 2014 — Aug 2025</span>
+          </div>
+          <p class="tl-company">Tata Consultancy Services (TCS)</p>
+          <ul class="tl-list">
+            <li>Led the AI.Cloud Design team — conducting user research, heuristic evaluations, and stakeholder interviews.</li>
+            <li>Designed compliance tracking applications for complex regulatory adherence processes.</li>
+            <li>Created high-fidelity wireframes, interactive prototypes, and UI design guidelines for web &amp; mobile.</li>
+            <li>Delivered UX solutions across banking, automotive, energy, and aviation for global enterprise clients.</li>
+            <li>Collaborated with developers, product managers, and QA to ensure design feasibility.</li>
+          </ul>
+        </div>
+
+        <div class="tl-item reveal rd2">
+          <div class="tl-dot"></div>
+          <div class="tl-head">
+            <span class="tl-role">UX Designer — Product Sales Team</span>
+            <span class="tl-period">Jan 2011 — May 2014</span>
+          </div>
+          <p class="tl-company">Kony</p>
+          <ul class="tl-list">
+            <li>Improved public-facing websites for SSE &amp; Scottish and Southern Energy plc, optimising conversion rates.</li>
+            <li>Conducted competitor analysis, usability testing, and stakeholder research to enhance engagement.</li>
+            <li>Designed interactive prototypes and high-fidelity UI mockups for seamless user interactions.</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FEATURED PROJECTS ───────────────────────────────────── -->
+  <section class="section" id="featured">
+    <div class="section-inner">
+      <p class="section-label reveal">Key Projects</p>
+      <h2 class="section-title reveal">Enterprise-Scale UX Work</h2>
+      <div class="section-bar reveal"></div>
+      <div class="fp-grid">
+
+        <div class="fp-card reveal rd1">
+          <p class="fp-client">Candescent · Banking</p>
+          <h3 class="fp-title">Money Movement — Transaction History &amp; Agentic AI</h3>
+          <p class="fp-desc">Redesigned end-to-end payment journeys (Bill Pay, ACH, Wires) integrating Agentic AI task assistance — reducing transaction steps by 30%. Designed adaptive UI frameworks predicting user intent.</p>
+        </div>
+
+        <div class="fp-card reveal rd2">
+          <p class="fp-client">QANTAS Airways · Aviation</p>
+          <h3 class="fp-title">Tarmac Flight Validator App</h3>
+          <p class="fp-desc">Designed an intuitive iPad-based boarding pass validation interface for outdoor, high-glare, time-sensitive tarmac conditions. Conducted research with boarding agents to streamline workflows.</p>
+        </div>
+
+        <div class="fp-card reveal rd3">
+          <p class="fp-client">Jaguar Land Rover · Automotive</p>
+          <h3 class="fp-title">Powertrain Certification &amp; Compliance</h3>
+          <p class="fp-desc">Designed compliance tracking applications simplifying complex regulatory adherence through user interviews and usability studies for a global automotive leader.</p>
+        </div>
+
+        <div class="fp-card reveal rd4">
+          <p class="fp-client">CommBank of Australia · FinTech</p>
+          <h3 class="fp-title">Home Loan Application UX</h3>
+          <p class="fp-desc">Reduced friction in the home loan application journey — decreased support call volume through responsive UI designs compatible across multiple devices with qualitative &amp; quantitative research backing.</p>
+        </div>
+
+        <div class="fp-card reveal rd5">
+          <p class="fp-client">Northern PowerGrid · Energy</p>
+          <h3 class="fp-title">Power Cut Mapping &amp; Logging (PCL)</h3>
+          <p class="fp-desc">Redesigned the Power Cut Mapping website enhancing user navigation and operational efficiency. Delivered wireframes, visual designs, and interactive prototypes for mobile and web.</p>
+        </div>
+
+        <div class="fp-card reveal rd6">
+          <p class="fp-client">TotalEnergies · Energy</p>
+          <h3 class="fp-title">Internal Application System</h3>
+          <p class="fp-desc">Streamlined internal user experience reducing support call volume through qualitative &amp; quantitative user research and responsive UI designs for multiple devices.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── BEHANCE PORTFOLIO ──────────────────────────────────── -->
+  <section class="section" id="portfolio">
+    <div class="section-inner">
+      <p class="section-label reveal">Behance Portfolio</p>
+      <h2 class="section-title reveal">Recent Design Work</h2>
+      <div class="section-bar reveal"></div>
+      <div class="pf-grid">
+
+        <a class="pf-card reveal rd1" href="https://www.behance.net/gallery/236221733/Warehouse-manager-of-a-multinational-retail-brand" target="_blank" rel="noopener">
+          <div class="pf-img">
+            <img src="https://mir-s3-cdn-cf.behance.net/projects/404/32bf7b236221733.Y3JvcCwxOTIwLDE1MDEsMCww.jpg" alt="Warehouse Manager App" loading="lazy">
+            <div class="pf-overlay"><span>View on Behance →</span></div>
+          </div>
+          <div class="pf-info">
+            <span class="pf-tag">Retail · Dashboard</span>
+            <p class="pf-title">Warehouse Manager — Multinational Retail Brand</p>
+          </div>
+        </a>
+
+        <a class="pf-card reveal rd2" href="https://www.behance.net/gallery/233035973/HABiT-Tracking-App" target="_blank" rel="noopener">
+          <div class="pf-img">
+            <img src="https://mir-s3-cdn-cf.behance.net/projects/404/fbbad0233035973.Y3JvcCwxMDI0LDgwMCwwLDA.jpg" alt="HABiT Tracking App" loading="lazy">
+            <div class="pf-overlay"><span>View on Behance →</span></div>
+          </div>
+          <div class="pf-info">
+            <span class="pf-tag">Health · Mobile App</span>
+            <p class="pf-title">HABiT Tracking App</p>
+          </div>
+        </a>
+
+        <a class="pf-card reveal rd3" href="https://www.behance.net/gallery/225403737/WellPredict" target="_blank" rel="noopener">
+          <div class="pf-img">
+            <img src="https://mir-s3-cdn-cf.behance.net/projects/404/d11432225403737.Y3JvcCwyNTYwLDIwMDIsMCww.jpg" alt="WellPredict" loading="lazy">
+            <div class="pf-overlay"><span>View on Behance →</span></div>
+          </div>
+          <div class="pf-info">
+            <span class="pf-tag">Healthcare · Predictive</span>
+            <p class="pf-title">WellPredict</p>
+          </div>
+        </a>
+
+        <a class="pf-card reveal rd4" href="https://www.behance.net/gallery/217679315/Van-Stock-Management-Dashboard" target="_blank" rel="noopener">
+          <div class="pf-img">
+            <img src="https://mir-s3-cdn-cf.behance.net/projects/404/731007217679315.Y3JvcCwxMzA5LDEwMjQsMjksMA.png" alt="Van Stock Management Dashboard" loading="lazy">
+            <div class="pf-overlay"><span>View on Behance →</span></div>
+          </div>
+          <div class="pf-info">
+            <span class="pf-tag">Logistics · Dashboard</span>
+            <p class="pf-title">Van Stock Management Dashboard</p>
+          </div>
+        </a>
+
+        <a class="pf-card reveal rd5" href="https://www.behance.net/gallery/215032103/Car-Parking-finder" target="_blank" rel="noopener">
+          <div class="pf-img">
+            <img src="https://mir-s3-cdn-cf.behance.net/projects/404/295b2c215032103.Y3JvcCwzMTUwLDI0NjMsMCww.jpg" alt="Car Parking Finder" loading="lazy">
+            <div class="pf-overlay"><span>View on Behance →</span></div>
+          </div>
+          <div class="pf-info">
+            <span class="pf-tag">Mobility · Maps</span>
+            <p class="pf-title">Car Parking Finder</p>
+          </div>
+        </a>
+
+        <a class="pf-card reveal rd6" href="https://www.behance.net/gallery/214994541/Inventory-Dashboard" target="_blank" rel="noopener">
+          <div class="pf-img">
+            <img src="https://mir-s3-cdn-cf.behance.net/projects/404/facb63214994541.Y3JvcCwxOTYzLDE1MzYsOTcsMA.png" alt="Inventory Dashboard" loading="lazy">
+            <div class="pf-overlay"><span>View on Behance →</span></div>
+          </div>
+          <div class="pf-info">
+            <span class="pf-tag">Retail · Analytics</span>
+            <p class="pf-title">Inventory Dashboard</p>
+          </div>
+        </a>
+
+      </div>
+      <div class="pf-footer reveal">
+        <a href="https://www.behance.net/npraveen" target="_blank" rel="noopener" class="btn-s">View All on Behance ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CONTACT ─────────────────────────────────────────────── -->
+  <section class="section" id="contact">
+    <div class="section-inner">
+      <div class="contact-wrap">
+        <p class="section-label reveal">Contact</p>
+        <h2 class="section-title reveal">Let's Create Something Remarkable</h2>
+        <div class="section-bar reveal" style="margin:0 auto 2rem;"></div>
+        <p class="contact-sub reveal">Open to senior UX design roles, product leadership opportunities, and collaboration on challenging digital products. Based in Hyderabad — available for remote and on-site engagements.</p>
+        <div class="reveal">
+          <a href="mailto:npraveen.ux@gmail.com" class="contact-email">npraveen.ux@gmail.com</a>
+        </div>
+        <div class="contact-links reveal rd1">
+          <a href="https://www.linkedin.com/in/nallurupraveen/" target="_blank" rel="noopener" class="c-link">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            LinkedIn
+          </a>
+          <a href="https://www.behance.net/npraveen" target="_blank" rel="noopener" class="c-link">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 7h-7V5h7v2zm1.726 10c-.442 1.297-2.029 3-5.101 3-3.074 0-5.564-1.729-5.564-5.675 0-3.91 2.325-5.92 5.466-5.92 3.082 0 4.964 1.782 5.375 4.426.078.506.109 1.188.095 2.14H15.97c.13 3.211 3.483 3.226 4.472 2.01l1.284.02zM15.998 13h4.487c-.057-1.443-.62-2.544-2.198-2.544-1.512 0-2.135 1.05-2.289 2.544zM8 11.986c1.816-.169 2.38-1.177 2.38-2.189 0-2.644-2.028-3.798-4.344-3.798H0v12h6.857c2.552 0 4.616-1.31 4.616-4.104 0-1.421-.698-2.558-3.473-1.909zM3 8.998h2.696c.806 0 1.575.357 1.575 1.37 0 .97-.68 1.424-1.589 1.424H3V8.998zm3.663 6.009H3v-2.66h3.663c1.116 0 1.902.491 1.902 1.344 0 .816-.754 1.316-1.902 1.316z"/></svg>
+            Behance
+          </a>
+          <a href="tel:+919550479060" class="c-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.09 6.09l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 17.23v-.31z"/></svg>
+            +91 95504 79060
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ──────────────────────────────────────────────── -->
+  <footer>
+    <a href="#hero" class="foot-logo" aria-label="Back to top">
+      <span class="fc">PRAV</span><span class="fe1">E</span><span class="fe2">E</span><span class="fc">N</span>
+    </a>
+    <p>© 2026 Praveen Kumar Nalluru · Hyderabad, India</p>
+    <p class="foot-theme-label" id="themeLabel">Auto: Based on local time</p>
+  </footer>
+
+  <script>
+    /* ── Theme: auto by time + manual toggle ──────────────── */
+    const html  = document.documentElement;
+    const btn   = document.getElementById('themeBtn');
+    const label = document.getElementById('themeLabel');
+    let manualOverride = false;
+
+    function getTimeTheme() {
+      const h = new Date().getHours();
+      return (h >= 7 && h < 19) ? 'light' : 'dark';
+    }
+    function applyTheme(t, manual) {
+      html.setAttribute('data-theme', t);
+      if (manual) {
+        label.textContent = t === 'dark' ? '🌙 Dark mode' : '☀️ Light mode';
+      } else {
+        const h = new Date().getHours();
+        label.textContent = `Auto (${h}:${String(new Date().getMinutes()).padStart(2,'0')}) — ${t === 'dark' ? 'Night 🌙' : 'Day ☀️'}`;
+      }
+      localStorage.setItem('pkn-theme', JSON.stringify({ t, manual }));
+    }
+    function init() {
+      const saved = JSON.parse(localStorage.getItem('pkn-theme') || 'null');
+      if (saved && saved.manual) {
+        manualOverride = true;
+        applyTheme(saved.t, true);
+      } else {
+        applyTheme(getTimeTheme(), false);
+      }
+    }
+    btn.addEventListener('click', () => {
+      manualOverride = true;
+      const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      applyTheme(next, true);
+    });
+    init();
+    // Re-check time every minute when not overridden
+    setInterval(() => {
+      if (!manualOverride) applyTheme(getTimeTheme(), false);
+    }, 60000);
+
+    /* ── Nav scroll ───────────────────────────────────────── */
+    const nav = document.getElementById('mainNav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    }, { passive: true });
+
+    /* ── Mobile menu ──────────────────────────────────────── */
+    const menuBtn   = document.getElementById('menuBtn');
+    const navLinks  = document.getElementById('navLinks');
+    menuBtn.addEventListener('click', () => {
+      menuBtn.classList.toggle('open');
+      navLinks.classList.toggle('open');
+    });
+    navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      menuBtn.classList.remove('open');
+      navLinks.classList.remove('open');
+    }));
+
+    /* ── Custom cursor ────────────────────────────────────── */
+    const dot  = document.getElementById('cDot');
+    const ring = document.getElementById('cRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    function animCursor() {
+      dot.style.left  = mx + 'px';
+      dot.style.top   = my + 'px';
+      rx += (mx - rx) * 0.14;
+      ry += (my - ry) * 0.14;
+      ring.style.left = rx + 'px';
+      ring.style.top  = ry + 'px';
+      requestAnimationFrame(animCursor);
+    }
+    animCursor();
+    document.querySelectorAll('a,button,.sk-card,.pf-card,.fp-card').forEach(el => {
+      el.addEventListener('mouseenter', () => ring.classList.add('hov'));
+      el.addEventListener('mouseleave', () => ring.classList.remove('hov'));
+    });
+
+    /* ── Scroll reveal ────────────────────────────────────── */
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('vis'); } });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    /* ── Smooth active nav ────────────────────────────────── */
+    const sections = document.querySelectorAll('section[id]');
+    const navAs    = document.querySelectorAll('.nav-links a');
+    const secObs   = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          navAs.forEach(a => a.style.color = '');
+          const id = e.target.getAttribute('id');
+          const active = document.querySelector(`.nav-links a[href="#${id}"]`);
+          if (active) active.style.color = 'var(--fg)';
+        }
+      });
+    }, { rootMargin: '-50% 0px -50% 0px' });
+    sections.forEach(s => secObs.observe(s));
+  </script>
+</body>
+</html>
